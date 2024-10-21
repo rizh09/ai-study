@@ -18,7 +18,7 @@ Clone this repository to your local machine using:
 git clone https://github.com/rizh09/ai-interviewr.git
 `
 `
-cd your-repo-name
+cd ai-interviewr
 `
 
 ### Step 2: Install Required Libraries
@@ -80,9 +80,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
 - [pydub](https://github.com/jiaaro/pydub)
 - [OpenAI](https://openai.com/)
-
-Notes:
-Replace yourusername and your-repo-name with your actual GitHub username and repository name.
-Make sure to include any additional instructions or configurations specific to your project.
-You can add sections for examples, contributing, or any other relevant information as needed.
-Feel free to modify this template to better fit your project's requirements! If you have any further questions or need additional assistance, let me know!
