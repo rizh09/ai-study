@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcription Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            display: flex; /* Use flexbox for horizontal alignment */
+            justify-content: space-between; /* Space between items */
+            align-items: stretch; /* Stretch items to the same height */
+            width: 100%;
+            max-width: 1200px;
+        }
+        .video-container {
+            flex: 1;
+            margin-right: 20px;
+        }
+        video {
+            display: block;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .timestamp {
+            color: #007BFF;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .chatgpt-response {
+            flex: 1; /* Allow the ChatGPT response to take available space */
+            margin-right: 20px; /* Add some space to the right */
+        }
+        .chatgpt-response h2 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+        .chatgpt-response ul {
+            list-style-type: disc; /* Use bullet points */
+            padding-left: 20px; /* Indent the list */
+            margin: 0; /* Remove default margin */
+        }
+        .chatgpt-response li {
+            margin-bottom: 5px; /* Space between list items */
+            color: #555; /* Text color for list items */
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                flex-direction: column; /* Stack elements vertically on small screens */
+            }
+            .video-container {
+                margin-right: 0; /* Remove margin on small screens */
+                margin-bottom: 20px; /* Add space below video */
+            }
+            video {
+                width: 100%; /* Ensure video is responsive */
+            }
+        }
+        .chatgpt-response-wrapper {
+            background: white; /* Background for the ChatGPT response */
+            border-radius: 8px; /* Rounded corners */
+            padding: 15px; /* Padding inside the box */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+            flex: 1; /* Allow the wrapper to take available space */
+            margin: 10px 10px 0px 0px;
+            display: flex; /* Use flexbox for vertical alignment */
+            flex-direction: column; /* Stack children vertically */
+            height: 100%; /* Ensure both containers take full height */
+            max-height: 600px;
+            min-height: 600px;
+        }
+            
+        .transcription {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 10px 0px 0px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-height: 600px;
+            overflow-y: auto; /* Enable scrolling if content overflows */
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Transcriptions with Timestamps</h1>
+    
+    <div class="container">
+        <div class="video-container">
+            <!-- Video Element -->
+            <video id="transcriptionVideo" width="640" height="360" controls>
+                <source src="demo.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <!-- Space for ChatGPT Response and Transcriptions -->
+    <div class="container">
+        <div class="chatgpt-response-wrapper">
+            <h2>ChatGPT Response:</h2>
+            <ul id="chatgptResponseList">
+                <li>- Youth unemployment has been rising in Australia, currently representing just under 40% of all unemployment</li><li>- Young graduates are finding it difficult to enter creative industries, as the common stipulation is that you need experience to get a job but can't get a job to gain experience</li><li>- 42% of small businesses failed in 2003 and figures have not improved much since</li><li>- Lack of quality in branding, marketing, and websites is a contributing factor to small business failure</li><li>- A solution is needed to bridge the gap between high youth unemployment and struggling small businesses</li>
+            </ul>
+        </div>
+
+        <div class="transcription">
+            <div id="transcriptions">
+                <div class="transcription"><span class="timestamp" onclick="jumpToTimestamp(10)">10s</span>: <span id="text-10">over the past 2 years youth unemployment has been on the rise it currently represents just under 40% of all unemployment in Australia</span><br><img src="snapshot_10.png" alt="Snapshot at 10s" width="200"></div>
+<div class="transcription"><span class="timestamp" onclick="jumpToTimestamp(20)">20s</span>: <span id="text-20">young graduates leaving University and finding it more and more difficult to enter any form of creative industry now the common stipulation is that you can't get a job without</span><br><img src="snapshot_20.png" alt="Snapshot at 20s" width="200"></div>
+<div class="transcription"><span class="timestamp" onclick="jumpToTimestamp(30)">30s</span>: <span id="text-30">experience but you can't get a job to get the experience now meanwhile 42% of small businesses failed in 2003 to</span><br><img src="snapshot_30.png" alt="Snapshot at 30s" width="200"></div>
+<div class="transcription"><span class="timestamp" onclick="jumpToTimestamp(40)">40s</span>: <span id="text-40">and the figures have an improved much amongst many reasons this is happening is a consistent lack of quality in their branding marketing websites</span><br><img src="snapshot_40.png" alt="Snapshot at 40s" width="200"></div>
+<div class="transcription"><span class="timestamp" onclick="jumpToTimestamp(50)">50s</span>: <span id="text-50">the kind of training that these graduates have just spent 3 to 6 years training for now what if there was an enterprise that</span><br><img src="snapshot_50.png" alt="Snapshot at 50s" width="200"></div>
+<div class="transcription"><span class="timestamp" onclick="jumpToTimestamp(60)">60s</span>: <span id="text-60">which these two sets of frightening statistics I want to build that bridge</span><br><img src="snapshot_60.png" alt="Snapshot at 60s" width="200"></div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to jump to the corresponding timestamp in the video
+        function jumpToTimestamp(timestamp) {
+            const video = document.getElementById('transcriptionVideo');
+            video.currentTime = timestamp; // Set the video time to the timestamp
+            video.play(); // Optionally play the video
+        }
+
+    </script>
+</body>
+</html>
