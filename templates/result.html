@@ -86,6 +86,7 @@
             background-color: #007BFF;
             color: white;
             cursor: pointer;
+            margin-top: 20px; /* Add margin for spacing */
         }
 
         button:hover {
@@ -187,6 +188,11 @@
                 {% endfor %}
             </div>
         </div>
+    </div>
+
+    <!-- Go Back Button -->
+    <div>
+        <button onclick="window.location.href='{{ url_for('index') }}'">Go Back to Upload</button>
     </div>
 
     <script>
