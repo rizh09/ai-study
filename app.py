@@ -6,6 +6,8 @@ import moviepy.editor as mp
 from openai import OpenAI
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
+from dotenv import load_dotenv
+
 app = Flask(__name__)
 
 # Initialize recognizer
@@ -20,8 +22,6 @@ def transcribe():
     video_url = request.form.get('video_url')
     video_file = request.files.get('video_file')  # Handle uploaded video file
 
-    print(video_url)
-    print(video_file)
     # Convert video_url to string
     video_url = str(video_url) if video_url is not None else ""
 
@@ -88,7 +88,8 @@ def capture_snapshot(video,timestamp):
     mp.ImageClip(frame).save_frame(snapshot_filename)  # Save the frame as an image
     return snapshot_filename
 
-APIKEY = "sk-AZSSPEfaryK4bI2j8R5GpgHvFxBczvS9yRcqvIA5NtxRPq3y"
+load_dotenv()
+APIKEY = os.getenv("APIKEY")
 client = OpenAI(api_key=APIKEY, base_url="https://api.chatanywhere.tech/v1")
 
 def gpt_35_api(messages: list):
