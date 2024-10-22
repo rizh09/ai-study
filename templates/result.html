@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transcription Results</title>
+    <title>Transcription Viewer</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -11,35 +12,195 @@
             margin: 0;
             padding: 20px;
             background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
         h1 {
             text-align: center;
             color: #333;
         }
-        .transcription {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        .container {
+            display: flex;
+            /* Use flexbox for horizontal alignment */
+            justify-content: space-between;
+            /* Space between items */
+            align-items: stretch;
+            /* Stretch items to the same height */
+            width: 100%;
+            max-width: 1200px;
         }
+
+        .video-container {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        video {
+            display: block;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
         .timestamp {
             color: #007BFF;
             cursor: pointer;
             font-weight: bold;
         }
+
+        .chatgpt-response {
+            flex: 1;
+            /* Allow the ChatGPT response to take available space */
+            margin-right: 20px;
+            /* Add some space to the right */
+        }
+
+        .chatgpt-response h2 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+
+        .chatgpt-response ul {
+            list-style-type: disc;
+            /* Use bullet points */
+            padding-left: 20px;
+            /* Indent the list */
+            margin: 0;
+            /* Remove default margin */
+        }
+
+        .chatgpt-response li {
+            margin-bottom: 5px;
+            /* Space between list items */
+            color: #555;
+            /* Text color for list items */
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                flex-direction: column;
+                /* Stack elements vertically on small screens */
+            }
+
+            .video-container {
+                margin-right: 0;
+                /* Remove margin on small screens */
+                margin-bottom: 20px;
+                /* Add space below video */
+            }
+
+            video {
+                width: 100%;
+                /* Ensure video is responsive */
+            }
+        }
+
+        .chatgpt-response-wrapper {
+            background: white;
+            /* Background for the ChatGPT response */
+            border-radius: 8px;
+            /* Rounded corners */
+            padding: 15px;
+            /* Padding inside the box */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            /* Shadow for depth */
+            flex: 1;
+            /* Allow the wrapper to take available space */
+            margin: 10px 10px 0px 0px;
+            display: flex;
+            /* Use flexbox for vertical alignment */
+            flex-direction: column;
+            /* Stack children vertically */
+            height: 100%;
+            /* Ensure both containers take full height */
+            max-height: 600px;
+            min-height: 600px;
+        }
+
+        .transcription {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 10px 0px 0px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-height: 600px;
+            overflow-y: auto;
+            /* Enable scrolling if content overflows */
+            flex: 1;
+        }
     </style>
 </head>
+
 <body>
-    <h1>Transcription Results</h1>
-    <div class="transcription">
-        {% for timestamp, text, snapshot in transcriptions %}
-            <div>
-                <span class="timestamp">{{ timestamp }}s</span>: <span>{{ text }}</span><br>
-                <img src="{{ snapshot }}" alt="Snapshot at {{ timestamp }}s" width="200">
-            </div>
-        {% endfor %}
+    <h1>Transcriptions with Timestamps</h1>
+
+    <div class="container">
+        <div class="video-container">
+            <!-- Video Element -->
+            <video id="transcriptionVideo" width="640" height="360" controls>
+                <source src="{{ url_for('static', filename='videos/uploaded_audio.mp4') }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
     </div>
-    <a href="/">Go Back</a>
+
+    <!-- Space for ChatGPT Response and Transcriptions -->
+    <div class="container">
+        <div class="chatgpt-response-wrapper">
+            <h2>ChatGPT Response:</h2>
+            <ul id="chatgptResponseList">
+                {% for point in gpt_response.splitlines() %}
+                    {% if point.strip() %}
+                        <li>{{ point.strip() }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="transcription">
+            <div id="transcriptions">
+                {% for timestamp, text, snapshot in transcriptions %}
+                <div class="transcription">
+                    <span class="timestamp" onclick="jumpToTimestamp({{ timestamp | string }})">{{ timestamp }}s</span>: <span id="text-{{ timestamp | string }}">{{ text }}</span><br>
+                    <img src="{{ url_for('static', filename='images/snapshot_' + timestamp | string + '.png') }}" alt="Snapshot at {{ timestamp | string }}s" width="200">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to jump to the corresponding timestamp in the video
+        function jumpToTimestamp(timestamp) {
+            console.log("Jumping to timestamp:", timestamp); // Debugging line
+            const video = document.getElementById('transcriptionVideo');
+            if (video) {
+                video.currentTime = timestamp; // Set the video time to the timestamp
+                video.play(); // Optionally play the video
+            } else {
+                console.error("Video element not found");
+            }
+        }
+    </script>
 </body>
 </html>
