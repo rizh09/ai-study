@@ -95,7 +95,12 @@ client = OpenAI(api_key=APIKEY, base_url="https://api.chatanywhere.tech/v1")
 def gpt_35_api(messages: list):
     """Generate a response from ChatGPT for the provided messages."""
     completion = client.chat.completions.create(model="gpt-3.5-turbo", messages=messages)
-    return completion.choices[0].message.content
+    response = completion.choices[0].message.content
+    
+    # Remove "- " from the start of each line
+    cleaned_response = "\n".join(line.replace("- ", "") for line in response.splitlines())
+    
+    return cleaned_response
 
 if __name__ == '__main__':
     app.run(debug=True)

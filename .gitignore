@@ -1,2 +1,6 @@
 .env
 .venv
+static/*
+static/images/*
+static/videos/*
+static/videos/uploaded_audio.mp4
