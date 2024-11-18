@@ -38,13 +38,13 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd ./_testdata/ && golint ./... | reviewdog -f=golint -name=golint-check-subdir -reporter=github-check -level=info -filter-mode=nofilter
+          cd ./.../ && golint ./... | reviewdog -f=golint -name=golint-check-subdir -reporter=github-check -level=info -filter-mode=nofilter
 
       - name: Custom rdjson test (github-check)
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cat ./_testdata/custom_rdjson.json | \
+          cat ./.../ | \
             reviewdog -name="custom-rdjson" -f=rdjson -reporter=github-check -level=info
 
       - name: reviewdog project run
@@ -97,12 +97,12 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd ./_testdata/ && golint ./... | reviewdog -f=golint -name=golint-pr-review-subdir -reporter=github-pr-review -tee
+          cd ./.../ && golint ./... | reviewdog -f=golint -name=golint-pr-review-subdir -reporter=github-pr-review -tee
 
       - name: Run reviewdog with sub-dir (local+fail-on-error)
         run: |
-          echo 'var LocalTest = 14' >> ./_testdata/golint.go
-          cd ./_testdata/ && golint ./... | reviewdog -f=golint -diff="git diff" -fail-on-error || EXIT_CODE=$?
+          echo 'var LocalTest = 14' >> ./.../golint.go
+          cd ./.../ && golint ./... | reviewdog -f=golint -diff="git diff" -fail-on-error || EXIT_CODE=$?
           git reset --hard @
           test "${EXIT_CODE}" = 1
 
@@ -111,7 +111,7 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd ./_testdata/ && golint ./... | reviewdog -f=golint -name=golint-pr-check-fail-on-error -reporter=github-pr-check -fail-on-error
+          cd ./.../ && golint ./... | reviewdog -f=golint -name=golint-pr-check-fail-on-error -reporter=github-pr-check -fail-on-error
 
       - name: Run reviewdog (github-pr-check with -filter-mode=file)
         env:
@@ -123,40 +123,40 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd ./_testdata/ && golint ./... | reviewdog -f=golint -name=golint-pr-review-nofilter -reporter=github-pr-review -filter-mode=nofilter -fail-on-error || EXIT_CODE=$?
+          cd ./.../ && golint ./... | reviewdog -f=golint -name=golint-pr-review-nofilter -reporter=github-pr-review -filter-mode=nofilter -fail-on-error || EXIT_CODE=$?
           test "${EXIT_CODE}" = 1
 
       - name: Unexpected failure (github-pr-review)
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd ./_testdata/ && reviewdog -conf=reviewdog_error.yml \
+          cd ./.../ && reviewdog -conf=reviewdog_error.yml \
             -reporter=github-pr-review || EXIT_CODE=$?
           test "${EXIT_CODE}" = 1
       - name: Unexpected failure (github-check)
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd ./_testdata/ && reviewdog -conf=reviewdog_error.yml \
+          cd ./.../ && reviewdog -conf=reviewdog_error.yml \
             -reporter=github-check || EXIT_CODE=$?
           test "${EXIT_CODE}" = 1
       - name: Unexpected failure (local)
         run: |
-          cd ./_testdata/ && reviewdog -conf=reviewdog_error.yml \
+          cd ./.../ && reviewdog -conf=reviewdog_error.yml \
             -reporter=local -diff='git diff master' || EXIT_CODE=$?
           test "${EXIT_CODE}" = 1
       - name: Suggestion (rdjsonl)
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cat ./_testdata/suggestions.json | \
+          cat ./.../ | \
             reviewdog -name="suggestion-test" -f=rdjsonl -reporter=github-pr-review
 
       - name: Custom rdjsonl test (github-pr-review)
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cat ./_testdata/custom_rdjson.json | \
+          cat ./.../ | \
             reviewdog -name="custom-rdjson" -f=rdjson -reporter=github-pr-review -filter-mode=file
 
       - name: gofmt -s with reviewdog
@@ -208,7 +208,7 @@ jobs:
           reporter: github-pr-review
           filter_mode: nofilter
           fail_on_error: true
-          # workdir: ./_testdata/
+          # workdir: ./.../
 
   misspell:
     name: runner / misspell
@@ -242,7 +242,7 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cat ./_testdata/custom_rdjson.json | \
+          cat ./.../ | \
             reviewdog -name="custom-rdjson" -f=rdjson -reporter=github-pr-annotations
 
   reviewdog-sarif:
@@ -264,7 +264,7 @@ jobs:
       - name: Custom rdjson test
         run: |
           mkdir ../results
-          cat ./_testdata/custom_rdjson.json |
+          cat ./.../ |
             reviewdog -name="custom-rdjson" -f=rdjson -reporter=sarif |
             tee ../results/custom-rdjson.sarif
       - name: Install linters
