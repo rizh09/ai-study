@@ -142,10 +142,10 @@
                 </form>
             </div>
             <div class="tab-pane fade" id="dropTab" role="tabpanel" aria-labelledby="drop-tab">
-                <form action="/transcribe" method="POST" enctype="multipart/form-data" onsubmit="showLoading();">
+                <form action="/upload" method="POST" enctype="multipart/form-data" onsubmit="showLoading();">
                     <div class="drop-area rounded p-3 text-center" id="drop-area" onclick="fileInput.click();"> <!-- Clickable area to trigger file input -->
-                        <p>Drag & Drop your video file here or click to upload</p>
-                        <input type="file" name="video_file" accept="video/*" id="fileElem" style="display:none;" onchange="handleFiles(this.files)">
+                        <p>Drag & Drop your video file(video, pdf) here or click to upload</p>
+                        <input type="file" name="file" accept="video/*, application/pdf" id="fileElem" style="display:none;" onchange="handleFiles(this.files)">
                     </div>
                     <div id="uploaded-message">Video uploaded successfully!</div> <!-- Message for uploaded video -->
                     <div class="text-center"> <!-- Centering the button -->
@@ -207,13 +207,13 @@
         function handleFiles(files) {
             if (files.length > 0) {
                 const file = files[0];
-                if (file.type.startsWith('video/')) {
+                if (file.type.startsWith('video/') || file.type === 'application/pdf') {
                     // Show the uploaded message
                     const uploadedMessage = document.getElementById('uploaded-message');
                     uploadedMessage.style.display = 'block'; // Show the message
-                    uploadedMessage.textContent = "Video uploaded successfully!"; // Set the message text
+                    uploadedMessage.textContent = "File uploaded successfully!"; // Set the message text
                 } else {
-                    alert("Please upload a valid video file.");
+                    alert("Please upload a valid video or PDF file.");
                 }
             }
         }

@@ -2,7 +2,6 @@ import moviepy.editor as mp
 import speech_recognition as sr
 from pydub import AudioSegment
 import os
-from openai import OpenAI
 
 # ------------------------------
 # Video and Audio Processing
@@ -58,8 +57,7 @@ transcriptions = transcribe_audio_with_timestamps("demo.wav")
 # ------------------------------
 # ChatGPT Interaction
 # ------------------------------
-
-APIKEY = "sk-AZSSPEfaryK4bI2j8R5GpgHvFxBczvS9yRcqvIA5NtxRPq3y"
+APIKEY = os.getenv("APIKEY")
 client = OpenAI(api_key=APIKEY, base_url="https://api.chatanywhere.tech/v1")
 
 def gpt_35_api(messages: list):

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import speech_recognition as sr
 from pydub import AudioSegment
 import os
@@ -7,6 +7,9 @@ from openai import OpenAI
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
 from dotenv import load_dotenv
+from PyPDF2 import PdfReader
+import mimetypes
+from pdf2image import convert_from_path  # Import pdf2image to convert PDF pages to images
 
 app = Flask(__name__)
 
@@ -20,22 +23,17 @@ def index():
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
     video_url = request.form.get('video_url')
-    video_file = request.files.get('video_file')  # Handle uploaded video file
-
     # Convert video_url to string
     video_url = str(video_url) if video_url is not None else ""
 
-    if not video_url and not video_file:  # Check if both video_url and video_file are empty or None
-        return jsonify({"error": "No video URL or file provided"}), 400
+    if not video_url : # Check if all inputs are empty or None
+        return jsonify({"error": "No video URL, file, or PDF provided"}), 400
 
     try:
-        if video_file:  # If a video file is uploaded
-            audio_file = 'static/videos/uploaded_audio.mp4'
-            video_file.save(audio_file)  # Save the uploaded file
-        else:  # If a video URL is provided
-                    # Define the output file name
-            yt = YouTube(video_url, on_progress_callback = on_progress)
-            audio_file = yt.streams.filter(file_extension='mp4').first().download('static/videos/', filename='uploaded_audio.mp4')
+        # If a video URL is provided
+        # Define the output file name
+        yt = YouTube(video_url, on_progress_callback = on_progress)
+        audio_file = yt.streams.filter(file_extension='mp4').first().download('static/videos/', filename='uploaded_audio.mp4')
         # Call the transcribe_video function
         transcriptions = transcribe_video(audio_file)
         # Prepare messages for ChatGPT
@@ -96,11 +94,72 @@ def gpt_35_api(messages: list):
     """Generate a response from ChatGPT for the provided messages."""
     completion = client.chat.completions.create(model="gpt-3.5-turbo", messages=messages)
     response = completion.choices[0].message.content
-    
+    print("before")
+    print(response)
     # Remove "- " from the start of each line
     cleaned_response = "\n".join(line.replace("- ", "") for line in response.splitlines())
-    
+    print("after")
+    print(cleaned_response)
     return cleaned_response
+
+def read_pdf_and_capture_images(pdf_file):
+    """Extract text from a PDF file and capture images of each page."""
+    reader = PdfReader(pdf_file)  # Create a PdfReader object
+    text_and_images = []  # List to hold tuples of (page_number, text, image_path)
+
+    # Convert PDF pages to images
+    images = convert_from_path(pdf_file)
+
+    for page_number, page in enumerate(reader.pages):
+        text = page.extract_text()  # Extract text from the page
+        image_path = f"static/images/snapshot_{page_number + 1}.png"  # Define image path
+        images[page_number].save(image_path, 'PNG')  # Save the image of the page
+
+        text_and_images.append((page_number + 1, text, image_path))  # Store page number, text, and image path
+
+    return text_and_images  # Return the list of tuples
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    uploaded_file = request.files.get('file')  # Assuming the input field name is 'file'
+    
+    if uploaded_file is None:
+        return jsonify({"Custom Error": "No file uploaded."}), 400
+
+    file_extension = uploaded_file.filename.rsplit('.', 1)[-1].lower()  # Get the file extension
+
+    if file_extension == 'pdf' or file_extension == 'application/pdf':  # If a PDF file is uploaded
+        # Save the uploaded PDF file to a temporary location
+        pdf_file_path = 'static/uploads/uploaded_file.pdf'
+        uploaded_file.save(pdf_file_path)  # Save the uploaded file
+        text_and_images = read_pdf_and_capture_images(pdf_file_path)  # Read text and capture images
+        gpt_responses = []  # List to hold responses for each page
+
+        for page_number, page_text, image_path in text_and_images:
+            messages = [{'role': 'user', 'content': f'Please summarize the content below in point form for study (Page {page_number}): {page_text}'}]
+            gpt_response = gpt_35_api(messages)
+            gpt_responses.append((page_number, gpt_response, image_path))  # Store page number, response, and image path
+
+        print(gpt_responses)
+        return render_template('result_pdf.html', transcriptions=[], gpt_response=gpt_responses)
+
+    elif file_extension in ['mp4', 'mov', 'avi', 'mkv'] or file_extension.startswith('video/'):  # If a video file is uploaded
+        audio_file = 'static/videos/uploaded_audio.mp4'
+        uploaded_file.save(audio_file)  # Save the uploaded file
+        # Process the video file as needed
+        transcriptions = transcribe_video(audio_file)
+        # Prepare messages for ChatGPT
+        messages = [{'role': 'user', 'content': 'Summarize the content below as point form for study: ' + ' '.join([text for _, text, _ in transcriptions])}]
+        gpt_response = gpt_35_api(messages)
+        # Render the result.html template with the transcription data
+        return render_template('result.html', transcriptions=transcriptions, gpt_response=gpt_response)
+
+    else:
+         return jsonify({"Custom Error": "Unsupported file type. Please upload a PDF or video file."}), 400
+
+@app.route('/pdf/<path:filename>')
+def pdf_view(filename):
+    return send_from_directory('', filename)
 
 if __name__ == '__main__':
     app.run(debug=True)

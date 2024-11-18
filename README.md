@@ -1,7 +1,7 @@
 # Project Title
 
 ## Description
-This project utilizes various libraries for video processing, speech recognition, and interaction with the OpenAI API. The main functionality is implemented in `main.py`.
+This project utilizes various libraries for video processing, speech recognition, and interaction with the OpenAI API. The main functionality is implemented in `proccess_local_video_and_render_website`.
 
 ## Prerequisites
 Before you begin, ensure you have the following installed on your system:
@@ -49,14 +49,14 @@ For other operating systems, you can download and install `ffmpeg` from the [off
 ## Usage
 
 ### Running the Script
-Once you have installed all the necessary libraries, you can run the `main.py` script. Use the following command in your terminal:
+Once you have installed all the necessary libraries, you can run the ` download_youtube.py` script. Use the following command in your terminal:
 
 
-`python main.py`
+`python download_youtube.py`
 
 
 ### Configuration
-Make sure to configure any necessary API keys or settings in `main.py` before running the script. For example, if you are using the OpenAI API, you will need to set your API key:
+Make sure to configure any necessary API keys or settings in `python download_youtube.py` before running the script. For example, if you are using the OpenAI API, you will need to set your API key:
 
 `import openai`
 `openai.api_key = 'your-api-key-here'`
@@ -80,3 +80,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
 - [pydub](https://github.com/jiaaro/pydub)
 - [OpenAI](https://openai.com/)
+
+
+## Sample
+- [Youtube]: https://www.youtube.com/watch?v=gXwewPgLmkE
+- [local pdf] : static/uploads/uploaded_file.pdf
+- [local video] : demo.mp4

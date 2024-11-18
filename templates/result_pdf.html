@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcription Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+        }
+
+        .video-container {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        video {
+            display: block;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .pdf-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pdf-page {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .pdf-text {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        .snapshot-image {
+            max-width: 200px; /* Set a max width for the image */
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            margin-top: 20px; /* Add margin for spacing */
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1></h1>
+
+    <div class="container">
+        <div class="video-container">
+            <!-- Video Element -->
+            
+        </div>
+    </div>
+
+    <!-- Space for ChatGPT Response and Transcriptions -->
+    <div class="container">
+        <div class="chatgpt-response-wrapper">
+            <h2>ChatGPT Response:</h2>
+            <ul id="chatgptResponseList">
+            </ul>
+        </div>
+
+        <div class="pdf-content">
+            <h2>PDF Content:</h2>
+            <ul id="pdfContentList">
+                {% for page_number, summary, image_path in gpt_response %}
+                    <li class="pdf-page">
+                        <div class="pdf-text">
+                            <h3>Page {{ page_number }}</h3>
+                            <p>{{ summary | nl2br }}</p>
+                        </div>
+                        {% if image_path %}
+                            <a href="{{ url_for('pdf_view', filename=image_path, page=page_number) }}" target="_blank">
+                                <img src="{{ image_path }}" alt="Snapshot for Page {{ page_number }}" class="snapshot-image">
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Go Back Button -->
+    <div>
+        <button onclick="window.location.href='{{ url_for('index') }}'">Go Back to Upload</button>
+    </div>
+</body>
+</html>
